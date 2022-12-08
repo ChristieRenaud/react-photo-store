@@ -1,4 +1,5 @@
 import React from 'react'
+import { Context } from '../Context.js'
 
 function Cart() {
   return (
