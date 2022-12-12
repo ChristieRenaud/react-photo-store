@@ -34,6 +34,10 @@ function ContextProvider({ children }) {
     })
   }
 
+  function emptyCart() {
+    setCartItems([])
+  }
+
   return (
     <Context.Provider
       value={{
@@ -42,6 +46,7 @@ function ContextProvider({ children }) {
         toggleFavorite,
         addToCart,
         removeFromCart,
+        emptyCart,
       }}
     >
       {children}
