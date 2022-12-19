@@ -7,6 +7,9 @@ function ContextProvider({ children }) {
   const [cartItems, setCartItems] = useState(
     JSON.parse(localStorage.getItem('cartItems')) || [],
   )
+  const [favorites, setFavorites] = useState(
+    JSON.parse(localStorage.getItem('favorites')) || [],
+  )
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const url =
     'https://raw.githubusercontent.com/bobziroll/scrimba-react-bootcamp-images/master/images.json'
@@ -19,16 +22,25 @@ function ContextProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems))
   }, [cartItems])
-  function toggleFavorite(id) {
-    setAllPhotos((prevArray) =>
-      prevArray.map((img) => {
-        if (img.id === id) {
-          return { url: img.url, id: img.id, isFavorite: !img.isFavorite }
-        } else {
-          return img
-        }
-      }),
-    )
+
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites))
+  }, [favorites])
+  function addToFavorites(item) {
+    setFavorites((prevFavorites) => [...prevFavorites, item])
+  }
+  function removeFromFavorites(id) {
+    setFavorites((prevFavorites) => {
+      return prevFavorites.filter((favorite) => favorite.id !== id)
+    })
+  }
+
+  function toggleFavorite(item) {
+    if (favorites.some((favorite) => favorite.id === item.id)) {
+      removeFromFavorites(item.id)
+    } else {
+      addToFavorites(item)
+    }
   }
 
   function selectPhoto(item) {
@@ -57,6 +69,7 @@ function ContextProvider({ children }) {
       value={{
         allPhotos,
         cartItems,
+        favorites,
         toggleFavorite,
         addToCart,
         removeFromCart,

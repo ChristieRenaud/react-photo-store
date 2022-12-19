@@ -308,10 +308,15 @@ function ContextProvider(_ref) {
       cartItems = _useState4[0],
       setCartItems = _useState4[1];
 
-  var _useState5 = (0, _react.useState)(null),
+  var _useState5 = (0, _react.useState)(JSON.parse(localStorage.getItem('favorites')) || []),
       _useState6 = _slicedToArray(_useState5, 2),
-      selectedPhoto = _useState6[0],
-      setSelectedPhoto = _useState6[1];
+      favorites = _useState6[0],
+      setFavorites = _useState6[1];
+
+  var _useState7 = (0, _react.useState)(null),
+      _useState8 = _slicedToArray(_useState7, 2),
+      selectedPhoto = _useState8[0],
+      setSelectedPhoto = _useState8[1];
 
   var url = 'https://raw.githubusercontent.com/bobziroll/scrimba-react-bootcamp-images/master/images.json';
   (0, _react.useEffect)(function () {
@@ -325,16 +330,31 @@ function ContextProvider(_ref) {
   (0, _react.useEffect)(function () {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
-  function toggleFavorite(id) {
-    setAllPhotos(function (prevArray) {
-      return prevArray.map(function (img) {
-        if (img.id === id) {
-          return { url: img.url, id: img.id, isFavorite: !img.isFavorite };
-        } else {
-          return img;
-        }
+
+  (0, _react.useEffect)(function () {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+  function addToFavorites(item) {
+    setFavorites(function (prevFavorites) {
+      return [].concat(_toConsumableArray(prevFavorites), [item]);
+    });
+  }
+  function removeFromFavorites(id) {
+    setFavorites(function (prevFavorites) {
+      return prevFavorites.filter(function (favorite) {
+        return favorite.id !== id;
       });
     });
+  }
+
+  function toggleFavorite(item) {
+    if (favorites.some(function (favorite) {
+      return favorite.id === item.id;
+    })) {
+      removeFromFavorites(item.id);
+    } else {
+      addToFavorites(item);
+    }
   }
 
   function selectPhoto(item) {
@@ -368,6 +388,7 @@ function ContextProvider(_ref) {
       value: {
         allPhotos: allPhotos,
         cartItems: cartItems,
+        favorites: favorites,
         toggleFavorite: toggleFavorite,
         addToCart: addToCart,
         removeFromCart: removeFromCart,
@@ -1171,32 +1192,31 @@ var _react2 = _interopRequireDefault(_react);
 
 var _Context = __webpack_require__(2);
 
-var _useHover = __webpack_require__(10);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function HeartIcon(_ref) {
   var img = _ref.img,
       hovered = _ref.hovered;
 
-  // const [hovered, ref] = useHover
   var _useContext = (0, _react.useContext)(_Context.Context),
-      allPhotos = _useContext.allPhotos,
       toggleFavorite = _useContext.toggleFavorite,
+      favorites = _useContext.favorites,
       selectedPhoto = _useContext.selectedPhoto;
 
-  if (img.isFavorite) {
+  if (favorites.some(function (favorite) {
+    return favorite.id === img.id;
+  })) {
     return _react2.default.createElement('i', {
       className: 'ri-heart-fill favorite',
       onClick: function onClick() {
-        return toggleFavorite(img.id);
+        return toggleFavorite(img);
       }
     });
   } else if (hovered || img === selectedPhoto) {
     return _react2.default.createElement('i', {
       className: 'ri-heart-line favorite',
       onClick: function onClick() {
-        return toggleFavorite(img.id);
+        return toggleFavorite(img);
       }
     });
   } else return null;
@@ -2981,6 +3001,10 @@ var _Photos = __webpack_require__(28);
 
 var _Photos2 = _interopRequireDefault(_Photos);
 
+var _Favorites = __webpack_require__(51);
+
+var _Favorites2 = _interopRequireDefault(_Favorites);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function App() {
@@ -3000,6 +3024,11 @@ function App() {
         _reactRouterDom.Route,
         { path: '/cart' },
         _react2.default.createElement(_Cart2.default, null)
+      ),
+      _react2.default.createElement(
+        _reactRouterDom.Route,
+        { path: '/favorites' },
+        _react2.default.createElement(_Favorites2.default, null)
       )
     )
   );
@@ -3202,10 +3231,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function Header() {
   var _React$useContext = _react2.default.useContext(_Context.Context),
-      cartItems = _React$useContext.cartItems;
+      cartItems = _React$useContext.cartItems,
+      favorites = _React$useContext.favorites;
 
   var cartClassName = cartItems.length > 0 ? 'ri-shopping-cart-fill' : 'ri-shopping-cart-line';
-
+  var heartClassName = favorites.length > 0 ? 'ri-heart-fill' : 'ri-heart-line';
   return _react2.default.createElement(
     'header',
     null,
@@ -3219,9 +3249,18 @@ function Header() {
       )
     ),
     _react2.default.createElement(
-      _reactRouterDom.Link,
-      { to: '/cart' },
-      _react2.default.createElement('i', { className: cartClassName + ' ri-fw ri-2x' })
+      'div',
+      { className: 'nav-buttons' },
+      _react2.default.createElement(
+        _reactRouterDom.Link,
+        { to: '/favorites', className: 'heart-icon-lg' },
+        _react2.default.createElement('i', { className: heartClassName + ' ri-fw ri-2x' })
+      ),
+      _react2.default.createElement(
+        _reactRouterDom.Link,
+        { to: '/cart' },
+        _react2.default.createElement('i', { className: cartClassName + ' ri-fw ri-2x' })
+      )
     )
   );
 }
@@ -3275,10 +3314,6 @@ function Image(_ref) {
       ref = _useHover2[1];
 
   var _useContext = (0, _react.useContext)(_Context.Context),
-      toggleFavorite = _useContext.toggleFavorite,
-      addToCart = _useContext.addToCart,
-      removeFromCart = _useContext.removeFromCart,
-      cartItems = _useContext.cartItems,
       selectPhoto = _useContext.selectPhoto;
 
   return _react2.default.createElement(
@@ -37206,7 +37241,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function CartIcon(_ref) {
   var img = _ref.img,
-      hovered = _ref.hovered;
+      hovered = _ref.hovered,
+      favoritesPage = _ref.favoritesPage;
 
   var _useContext = (0, _react.useContext)(_Context.Context),
       cartItems = _useContext.cartItems,
@@ -37217,6 +37253,7 @@ function CartIcon(_ref) {
   var alreadyInCart = cartItems.some(function (cartItem) {
     return cartItem.id === img.id;
   });
+
   if (alreadyInCart) {
     return _react2.default.createElement('i', {
       className: 'ri-shopping-cart-fill cart',
@@ -37224,7 +37261,7 @@ function CartIcon(_ref) {
         return removeFromCart(img.id);
       }
     });
-  } else if (hovered || img === selectedPhoto) {
+  } else if (hovered || favoritesPage || img === selectedPhoto) {
     return _react2.default.createElement('i', { className: 'ri-add-circle-line cart', onClick: function onClick() {
         return addToCart(img);
       } });
@@ -37234,6 +37271,68 @@ function CartIcon(_ref) {
 }
 
 exports.default = CartIcon;
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _HeartIcon = __webpack_require__(15);
+
+var _HeartIcon2 = _interopRequireDefault(_HeartIcon);
+
+var _CartIcon = __webpack_require__(50);
+
+var _CartIcon2 = _interopRequireDefault(_CartIcon);
+
+var _Context = __webpack_require__(2);
+
+var _useHover = __webpack_require__(10);
+
+var _useHover2 = _interopRequireDefault(_useHover);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Favorites() {
+  var _useContext = (0, _react.useContext)(_Context.Context),
+      favorites = _useContext.favorites;
+
+  var imageElements = favorites.map(function (favorite) {
+    return _react2.default.createElement(
+      'div',
+      { className: 'favorite-item', key: favorite.id },
+      _react2.default.createElement('img', { src: favorite.url, className: 'favorites-img' }),
+      _react2.default.createElement(_HeartIcon2.default, { img: favorite }),
+      _react2.default.createElement(_CartIcon2.default, { img: favorite, favoritesPage: true })
+    );
+  });
+  return _react2.default.createElement(
+    'main',
+    { className: 'favorites-page' },
+    _react2.default.createElement(
+      'h1',
+      null,
+      'Favorite Images'
+    ),
+    _react2.default.createElement(
+      'div',
+      { className: 'favorites-container' },
+      imageElements
+    )
+  );
+}
+
+exports.default = Favorites;
 
 /***/ })
 /******/ ]);

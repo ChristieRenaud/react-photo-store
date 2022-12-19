@@ -1,11 +1,13 @@
-import React, { useState, useContext } from 'react'
+import React, { useContext } from 'react'
 import { Context } from '../Context.js'
 
-function CartIcon({ img, hovered }) {
+function CartIcon({ img, hovered, favoritesPage }) {
   const { cartItems, selectedPhoto, addToCart, removeFromCart } = useContext(
     Context,
   )
+
   const alreadyInCart = cartItems.some((cartItem) => cartItem.id === img.id)
+
   if (alreadyInCart) {
     return (
       <i
@@ -13,7 +15,7 @@ function CartIcon({ img, hovered }) {
         onClick={() => removeFromCart(img.id)}
       ></i>
     )
-  } else if (hovered || img === selectedPhoto) {
+  } else if (hovered || favoritesPage || img === selectedPhoto) {
     return (
       <i className="ri-add-circle-line cart" onClick={() => addToCart(img)}></i>
     )
