@@ -54,14 +54,24 @@ main.favorites-page {
   justify-content: center;
 }
 .favorite-item {
-  max-width: 23%;
-  min-width: 150px;
+  max-width: 30%;
+  min-width: 300px;
   margin: 20px 10px;
   position: relative;
 }
 
 .favorite-item > img {
   width: 100%;
+}
+@media (max-width: 500px) {
+  .favorites-container {
+    flex-direction: column;
+  }
+  .favorite-item {
+    max-width: none;
+    min-width: 100px;
+    margin: 25px;
+  }
 }
 
 div.order-button > button {
