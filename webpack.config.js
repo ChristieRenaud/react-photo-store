@@ -1,25 +1,25 @@
+const path = require('path') //added
+
 module.exports = {
-  "output": {
-    "filename": "[name].pack.js"
+  output: {
+    path: path.resolve('./build'), //added
+    filename: '[name].pack.js',
   },
-  "module": {
-    "rules": [
+  module: {
+    rules: [
       {
-        "use": {
-          "loader": "babel-loader",
-          "options": {
-            "presets": [
-              "babel-preset-env",
-              "babel-preset-react"
-            ]
-          }
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['babel-preset-env', 'babel-preset-react'],
+          },
         },
-        "exclude": /node_modules/,
-        "test": /\.js$/
-      }
-    ]
+        exclude: /node_modules/,
+        test: /\.js$/,
+      },
+    ],
   },
-  "entry": {
-    "index": "./index"
-  }
-};
+  entry: {
+    index: './index',
+  },
+}
